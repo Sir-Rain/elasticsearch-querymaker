@@ -1,6 +1,28 @@
 const resultSetQuery = {};
 
+
 const fullTextArr = ['match', 'match_all', 'match_phrase', 'query_string', 'term', 'range'];
+const boolArr = ['must', 'must_not', 'should', 'filter'];
+
+let tempBool = null;
+
+/* 타입체커 obj의 기본 값으로 resultSetQuery 사용. */
+const typeChecker = function(obj, checkString){
+    for (key in obj){
+        if (key === checkString){
+            return true
+        }
+        if (typeof obj[key] == 'object'){
+            return typeChecker(obj[key], checkString)
+        }
+    }
+    return false
+}
+
+const end = function(){
+    console.log(resultSetQuery);
+    return resultSetQuery;
+}
 
 const setQuery = function(fullText, keyword, field){
 
@@ -10,17 +32,46 @@ const setQuery = function(fullText, keyword, field){
         throw new Error("setQuery ::: Incorrect Query")
     }
 
-    if(fullText === 'match_all')  resultSetQuery.query.match_all = {};
-    if(fullText === 'query_string') resultSetQuery.query.query_string = {
+    let tempFullTextQuery =  {};
+    if(fullText === 'match_all') tempFullTextQuery.match_all = {};
+    else if(fullText === 'query_string') tempFullTextQuery.query_string = {
         default_field : field,
         query : keyword
     }
-    if(fullText === 'range') return; //todo
-
-    resultSetQuery.query = {
+    else if(fullText === 'range') return; //todo
+    else tempFullTextQuery = {
         [fullText] : keyword
     }
-    console.log(resultSetQuery)
+
+    if(typeChecker(resultSetQuery, "bool")){
+        resultSetQuery.query.bool[tempBool].push(tempFullTextQuery[fullText])
+    }else{
+        resultSetQuery.query = tempFullTextQuery[fullText];
+    }
+
+
+    return{
+        end
+    }
+}
+
+const setBool = function(boolQuery){
+
+    const checkCorrectBool = boolArr.find(value=> value === boolQuery);
+
+    if(!checkCorrectBool){
+        throw new Error("setBool ::: Incorrect Bool")
+    }
+
+    tempBool = boolQuery;
+
+    resultSetQuery.query.bool = {
+        [boolQuery] : []
+    }
+    return{
+        setQuery,
+        end
+    }
 }
 
 const queryMaker = function (from, size) {
@@ -36,9 +87,10 @@ const queryMaker = function (from, size) {
     resultSetQuery.query = {};
 
     return {
-        setQuery
+        setQuery,
+        setBool
     }
     
 }
 
-queryMaker().setQuery("match", "hello");
+queryMaker().setBool("must").setQuery("match_all").end();
