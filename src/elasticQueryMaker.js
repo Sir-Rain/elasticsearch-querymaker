@@ -24,6 +24,31 @@ const end = function(){
     return resultSetQuery;
 }
 
+const setRangeQuery = function(rangeObj){
+
+    if(!rangeObj || typeof rangeObj !== 'object' ){
+        return new Error("Incorrect rangeObj");
+    }
+
+    const range = ["field", "gt", "gte", "lt", "lte"]
+
+    for(const key in rangeObj){
+        const checkCorrectRange = range.find(value => value === key);
+
+        if(!checkCorrectRange){
+            return new Error("Incorrect Range Field");
+        }
+    }
+    
+    resultSetQuery.query.range = {
+        [rangeObj.field] : {
+            ...rangeObj
+        }
+    }
+
+    return {end}
+}
+
 const setQuery = function(fullText, keyword, field){
 
     const checkCorrectQuery = fullTextArr.find(value=> value === fullText);
@@ -92,9 +117,16 @@ const queryMaker = function (from, size) {
 
     return {
         setQuery,
-        setBool
+        setBool,
+        setRangeQuery
     }
     
 }
 
-queryMaker().setBool("must").setQuery("match_all").end();
+const testQ = {
+    "field" : "testField",
+    "gt" : "test",
+    "lt" : "bye"
+}
+
+queryMaker().setRangeQuery(testQ).end();
