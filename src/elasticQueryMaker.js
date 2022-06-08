@@ -20,7 +20,7 @@ const typeChecker = function(obj, checkString){
 }
 
 const end = function(){
-    console.log(resultSetQuery);
+    console.dir(resultSetQuery);
     return resultSetQuery;
 }
 
@@ -34,11 +34,15 @@ const setQuery = function(fullText, keyword, field){
 
     let tempFullTextQuery =  {};
     if(fullText === 'match_all') tempFullTextQuery.match_all = {};
+    else if(fullText === 'match_phrase'){
+        tempFullTextQuery.match_pharse = {
+            [field] : keyword
+        };
+    }
     else if(fullText === 'query_string') tempFullTextQuery.query_string = {
         default_field : field,
         query : keyword
     }
-    else if(fullText === 'range') return; //todo
     else tempFullTextQuery = {
         [fullText] : keyword
     }
