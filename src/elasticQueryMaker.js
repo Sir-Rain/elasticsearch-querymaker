@@ -1,9 +1,5 @@
 const resultSetQuery = {};
 
-
-const fullTextArr = ['match', 'match_all', 'match_phrase', 'query_string', 'term', 'range'];
-const boolArr = ['must', 'must_not', 'should', 'filter'];
-
 let tempBool = null;
 
 /* 타입체커 obj의 기본 값으로 resultSetQuery 사용. */
@@ -45,10 +41,12 @@ const setRangeQuery = function(rangeObj){
             return new Error("Incorrect Range Field");
         }
     }
+
+    const {field, ...queryRange}  = rangeObj
     
     resultSetQuery.query.range = {
-        [rangeObj.field] : {
-            ...rangeObj
+        [field] : {
+            ...queryRange
         }
     }
 
@@ -56,6 +54,8 @@ const setRangeQuery = function(rangeObj){
 }
 
 const setQuery = function(fullText, keyword, field){
+
+    const fullTextArr = ['match', 'match_all', 'match_phrase', 'query_string', 'term', 'range'];
 
     const checkCorrectQuery = fullTextArr.find(value=> value === fullText);
 
@@ -92,6 +92,9 @@ const setQuery = function(fullText, keyword, field){
 
 const setBool = function(boolQuery){
 
+
+    const boolArr = ['must', 'must_not', 'should', 'filter'];
+
     const checkCorrectBool = boolArr.find(value=> value === boolQuery);
 
     if(!checkCorrectBool){
@@ -105,6 +108,7 @@ const setBool = function(boolQuery){
     }
     return{
         setQuery,
+        setBool,
         end
     }
 }
