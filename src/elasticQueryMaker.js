@@ -24,6 +24,12 @@ const end = function(){
     return resultSetQuery;
 }
 
+/** 
+ * @typedef { Object } rangeObj
+ * @property { string } field
+ * @property { string } "gt" | "gte"
+ * @property { string } "lt" | "lte" 
+ */
 const setRangeQuery = function(rangeObj){
 
     if(!rangeObj || typeof rangeObj !== 'object' ){
